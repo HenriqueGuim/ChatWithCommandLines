@@ -16,11 +16,10 @@ public class Server {
     public static void main(String[] args) {
         Server server1 = new Server();
         server1.startServer(8080);
-
-
         server1.accepotclients();
 
     }
+
 
     private void createServerPool() {
         threadPool = Executors.newCachedThreadPool();
@@ -32,9 +31,10 @@ public class Server {
             Socket clientSocket = server.accept();
             ClientHandler clientHandler = new ClientHandler(clientSocket);
             System.out.println("New Client arrived");
-            clientHandler.sendMessage("HI!");
+            clientHandler.welcomeMessage();
             clientList.add(clientHandler);
             threadPool.submit(clientHandler);
+
             accepotclients();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -73,6 +73,27 @@ public class Server {
 
         }
 
+        private void welcomeMessage(){
+            BufferedReader fileReader = null;
+            try {
+                fileReader = new BufferedReader(new FileReader(new File("resources/welcome.txt")));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            String message = "";
+
+            try {
+                while ((message = fileReader.readLine()) != null) {
+                    sendMessage(message);
+                }
+                fileReader.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            }
+
+
         public String getName() {
             return name;
         }
@@ -97,7 +118,6 @@ public class Server {
             String message;
             try {
                 message =reader.readLine();
-                System.out.println(message);
 
                 if(message == null){
                     clientSocket.close();
